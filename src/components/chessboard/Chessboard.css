@@ -1,0 +1,9 @@
+
+#chessboard
+{
+    display: grid;
+    grid-template-columns: repeat(8, calc(100%/8));
+    grid-template-rows: repeat(8, calc(100%/8));
+    height: 80%;
+    aspect-ratio: 1;
+}
