@@ -12,7 +12,7 @@ export default function Tile({number, image}: Props)
     {
         return (
             <div className='tile black-tile'>
-                <div className='tile-image' style={{backgroundImage: `url(${image})`}}></div>
+                {image && <div className='tile-image' style={{backgroundImage: `url(${image})`}}></div>}
             </div>
         );
     }
@@ -20,7 +20,7 @@ export default function Tile({number, image}: Props)
     {
         return (
             <div className='tile white-tile'>
-                <div className='tile-image' style={{backgroundImage: `url(${image})`}}></div>
+                {image && <div className='tile-image' style={{backgroundImage: `url(${image})`}}></div>}
             </div>
         );
     }
