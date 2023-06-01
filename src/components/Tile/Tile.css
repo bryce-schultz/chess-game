@@ -22,6 +22,7 @@
 .tile-image:active
 {
     cursor: grabbing;
+    z-index: 999;
 }
 
 .black-tile 
