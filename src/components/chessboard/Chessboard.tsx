@@ -97,7 +97,6 @@ export default function Chessboard()
             element.style.position = 'absolute';
             element.style.left = `${x}px`;
             element.style.top = `${y}px`;
-            element.style.zIndex = '999';
 
             setActivePiece(element);
         }   
@@ -135,31 +134,39 @@ export default function Chessboard()
         const x = Math.floor((event.clientX - chessboard.offsetLeft) / 100);
         const y = 7-Math.floor((event.clientY - chessboard.offsetTop) / 100);
 
-        setPieces((value) => 
-        {
-            const pieces = value.map((piece) => 
-            {
-                if (piece.x === gridX && piece.y === gridY)
-                {
-                    const validMove = referee.isValidMove(gridX, gridY, x, y, piece.type, piece.team, value);
+        const currentPiece = pieces.find(p => p.x === gridX && p.y === gridY);
 
-                    if (validMove)
+        if (currentPiece)
+        {
+            const validMove = referee.isValidMove(gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces);
+            
+            if (validMove)
+            {
+                const updatedPieces = pieces.reduce((results, piece) =>
+                {
+                    if (piece.x === gridX && piece.y === gridY)
                     {
                         piece.x = x;
                         piece.y = y;
+                        results.push(piece);
                     }
-                    else
+                    else if (!(piece.x === x && piece.y === y))
                     {
-                        activePiece.style.position = 'relative';
-                        activePiece.style.removeProperty('top');
-                        activePiece.style.removeProperty('left');
-                        activePiece.style.zIndex = '10';
+                        results.push(piece);
                     }
-                }
-                return piece;
-            });
-            return pieces;
-        });
+
+                    return results;
+                }, [] as Piece[]);
+
+                setPieces(updatedPieces);
+            }
+            else
+            {
+                activePiece.style.position = 'relative';
+                activePiece.style.removeProperty('top');
+                activePiece.style.removeProperty('left');
+            }   
+        }
 
         setActivePiece(null);
     }
