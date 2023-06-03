@@ -64,6 +64,9 @@ export default class Referee
         else if (type === PieceType.KNIGHT) {
             return this.knightRule(initialPosition, desiredPosition, team, boardState);
         }
+        else if (type === PieceType.BISHOP) {
+            return this.bishopRule(initialPosition, desiredPosition, team, boardState);
+        }
 
         return false;
     }
@@ -123,6 +126,76 @@ export default class Referee
                         if (this.tileIsEmptyOrOccupiedByOpponent(desiredPosition, boardState, team)) {
                             return true;
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    bishopRule(initialPosition: Position, desiredPosition: Position, team: TeamType, boardState: Piece[]) {
+        for (let i = 1; i < 8; i++) {
+            //Up right movement
+            if (desiredPosition.x > initialPosition.x && desiredPosition.y > initialPosition.y) {
+                let passedPosition: Position = { x: initialPosition.x + i, y: initialPosition.y + i };
+                //Check if the tile is the destination tile
+                if (passedPosition.x === desiredPosition.x && passedPosition.y === desiredPosition.y) {
+                    //Dealing with destination tile
+                    if (this.tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)) {
+                        return true;
+                    }
+                }
+                else {
+                    //Dealing with passing tile
+                    if (this.tileIsOccupied(passedPosition, boardState)) {
+                        break;
+                    }
+                }
+            }
+            //Bottom right movement
+            if (desiredPosition.x > initialPosition.x && desiredPosition.y < initialPosition.y) {
+                let passedPosition: Position = { x: initialPosition.x + i, y: initialPosition.y - i };
+                //Check if the tile is the destination tile
+                if (passedPosition.x === desiredPosition.x && passedPosition.y === desiredPosition.y) {
+                    //Dealing with destination tile
+                    if (this.tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)) {
+                        return true;
+                    }
+                }
+                else {
+                    if (this.tileIsOccupied(passedPosition, boardState)) {
+                        break;
+                    }
+                }
+            }
+            //Bottom left movement
+            if (desiredPosition.x < initialPosition.x && desiredPosition.y < initialPosition.y) {
+                let passedPosition: Position = { x: initialPosition.x - i, y: initialPosition.y - i };
+                //Check if the tile is the destination tile
+                if (passedPosition.x === desiredPosition.x && passedPosition.y === desiredPosition.y) {
+                    //Dealing with destination tile
+                    if (this.tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)) {
+                        return true;
+                    }
+                }
+                else {
+                    if (this.tileIsOccupied(passedPosition, boardState)) {
+                        break;
+                    }
+                }
+            }
+            //Top left movement
+            if (desiredPosition.x < initialPosition.x && desiredPosition.y > initialPosition.y) {
+                let passedPosition: Position = { x: initialPosition.x - i, y: initialPosition.y + i };
+                //Check if the tile is the destination tile
+                if (passedPosition.x === desiredPosition.x && passedPosition.y === desiredPosition.y) {
+                    //Dealing with destination tile
+                    if (this.tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)) {
+                        return true;
+                    }
+                }
+                else {
+                    if (this.tileIsOccupied(passedPosition, boardState)) {
+                        break;
                     }
                 }
             }
