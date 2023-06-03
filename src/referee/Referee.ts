@@ -67,6 +67,9 @@ export default class Referee
         else if (type === PieceType.BISHOP) {
             return this.bishopRule(initialPosition, desiredPosition, team, boardState);
         }
+        else if (type === PieceType.ROOK) {
+            return this.rookRule(initialPosition, desiredPosition, team, boardState);
+        }
 
         return false;
     }
@@ -130,6 +133,8 @@ export default class Referee
                 }
             }
         }
+
+        return false;
     }
 
     bishopRule(initialPosition: Position, desiredPosition: Position, team: TeamType, boardState: Piece[]) {
@@ -200,5 +205,46 @@ export default class Referee
                 }
             }
         }
+
+        return false;
+    }
+
+    rookRule(initialPosition: Position, desiredPosition: Position, team: TeamType, boardState: Piece[]) {
+        if (initialPosition.x === desiredPosition.x) {
+            for (let i = 1; i < 8; i++) {
+                let multiplier = (desiredPosition.y < initialPosition.y) ? -1 : 1;
+
+                let passedPosition: Position = { x: initialPosition.x, y: initialPosition.y + (i * multiplier) };
+                if (passedPosition.x === desiredPosition.x && passedPosition.y === desiredPosition.y) {
+                    if (this.tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)) {
+                        return true;
+                    }
+                }
+                else {
+                    if (this.tileIsOccupied(passedPosition, boardState)) {
+                        break;
+                    }
+                }
+            }
+        }
+        if (initialPosition.y === desiredPosition.y) {
+            for (let i = 1; i < 8; i++) {
+                let multiplier = (desiredPosition.x < initialPosition.x) ? -1 : 1;
+
+                let passedPosition: Position = { x: initialPosition.x + (i * multiplier), y: initialPosition.y };
+                if (passedPosition.x === desiredPosition.x && passedPosition.y === desiredPosition.y) {
+                    if (this.tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)) {
+                        return true;
+                    }
+                }
+                else {
+                    if (this.tileIsOccupied(passedPosition, boardState)) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
