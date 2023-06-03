@@ -2,21 +2,25 @@ import { PieceType, TeamType, Piece, Position } from "../Constants";
 
 export default class Referee 
 {
-    tileIsOccupied(x: number, y: number, boardState: Piece[]): boolean
+    tileIsOccupied(position: Position, boardState: Piece[]): boolean
     {
-        const piece = boardState.find(p => p.position.x === x && p.position.y === y);
+        const piece = boardState.find(p => p.position.x === position.x && p.position.y === position.y);
         if (piece)
             return true;
         return false;
     }
 
-    tileIsOccupiedByOpponent(x: number, y: number, boardState: Piece[], team: TeamType): boolean
+    tileIsOccupiedByOpponent(position: Position, boardState: Piece[], team: TeamType): boolean
     {
-        const piece = boardState.find(p => p.position.x === x && p.position.y === y && p.team !== team);
+        const piece = boardState.find(p => p.position.x === position.x && p.position.y === position.y && p.team !== team);
 
         if (piece)
             return true;
         return false;
+    }
+
+    tileIsEmptyOrOccupiedByOpponent(position: Position, boardState: Piece[], team: TeamType) {
+        return (!this.tileIsOccupied(position, boardState) || this.tileIsOccupiedByOpponent(position, boardState, team));
     }
 
     isEnPassantMove(
@@ -55,49 +59,73 @@ export default class Referee
 
         if (type === PieceType.PAWN)
         {
-            return this.pawnRule(initialPosition.x, initialPosition.y, desiredPosition.x, desiredPosition.y, team, boardState);
+            return this.pawnRule(initialPosition, desiredPosition, team, boardState);
+        }
+        else if (type === PieceType.KNIGHT) {
+            return this.knightRule(initialPosition, desiredPosition, team, boardState);
         }
 
         return false;
     }
 
-    pawnRule(px: number, py: number, x: number, y: number, team: TeamType, boardState: Piece[])
+    pawnRule(initialPosition: Position, desiredPosition: Position, team: TeamType, boardState: Piece[])
     {
         const specialRow = (team === TeamType.OUR) ? 1 : 6;
         const pawnDirection = (team === TeamType.OUR) ? 1 : -1;
 
         // movement logic.
-        if (px === x && py === specialRow && y - py === 2*pawnDirection)
+        if (initialPosition.x === desiredPosition.x && initialPosition.y === specialRow && desiredPosition.y - initialPosition.y === 2*pawnDirection)
         {
-            if (!this.tileIsOccupied(x, y, boardState) &&
-                !this.tileIsOccupied(x, y - pawnDirection, boardState))
+            if (!this.tileIsOccupied(desiredPosition, boardState) &&
+                !this.tileIsOccupied({ x: desiredPosition.x, y: desiredPosition.y - pawnDirection }, boardState))
             {
                 return true;
             }
         } 
-        else if (px === x && y - py === pawnDirection)
+        else if (initialPosition.x === desiredPosition.x && desiredPosition.y - initialPosition.y === pawnDirection)
         {
-            if (!this.tileIsOccupied(x, y, boardState))
+            if (!this.tileIsOccupied(desiredPosition, boardState))
             {
                 return true;
             }
         }
         // attack logic.
-        else if (x - px === -1 && y - py === pawnDirection)
+        else if (desiredPosition.x - initialPosition.x === -1 && desiredPosition.y - initialPosition.y === pawnDirection)
         {
-            if (this.tileIsOccupiedByOpponent(x, y, boardState, team))
+            if (this.tileIsOccupiedByOpponent(desiredPosition, boardState, team))
             {
                 return true;
             }
         }
-        else if (x - px === 1 && y - py === pawnDirection)
+        else if (desiredPosition.x - initialPosition.x === 1 && desiredPosition.y - initialPosition.y === pawnDirection)
         {   
-            if (this.tileIsOccupiedByOpponent(x, y, boardState, team))
+            if (this.tileIsOccupiedByOpponent(desiredPosition, boardState, team))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    knightRule(initialPosition: Position, desiredPosition: Position, team: TeamType, boardState: Piece[]) {
+        for (let i = -1; i < 2; i += 2) {
+            for (let j = -1; j < 2; j += 2) {
+                if (desiredPosition.y - initialPosition.y === 2 * i) {
+                    if (desiredPosition.x - initialPosition.x === j) {
+                        if (this.tileIsEmptyOrOccupiedByOpponent(desiredPosition, boardState, team)) {
+                            return true;
+                        }
+                    }
+                }
+                if (desiredPosition.x - initialPosition.x === 2 * i) {
+                    if (desiredPosition.y - initialPosition.y === j) {
+                        if (this.tileIsEmptyOrOccupiedByOpponent(desiredPosition, boardState, team)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
