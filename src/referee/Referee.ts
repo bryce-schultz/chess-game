@@ -1,5 +1,5 @@
 import { PieceType, TeamType, Piece, Position } from "../Constants";
-import { pawnRule, knightRule, bishopRule, rookRule, kingRule } from "./rules";
+import { pawnRule, knightRule, bishopRule, rookRule, kingRule, queenRule, getPossiblePawnMoves, getPossibleKnightMoves, getPossibleBishopMoves, getPossibleRookMoves, getPossibleKingMoves, getPossibleQueenMoves } from "./rules";
 
 export default class Referee 
 {
@@ -46,18 +46,46 @@ export default class Referee
             return rookRule(initialPosition, desiredPosition, team, boardState);
         }
         else if (type === PieceType.QUEEN) {
-            var retVal = false;
-            if (rookRule(initialPosition, desiredPosition, team, boardState))
-                retVal = true;
-            else if (bishopRule(initialPosition, desiredPosition, team, boardState))
-                retVal = true;
-
-            return retVal;
+            return queenRule(initialPosition, desiredPosition, team, boardState);
         }
         else if (type === PieceType.KING) {
             return kingRule(initialPosition, desiredPosition, team, boardState);
         }
 
         return false;
+    }
+
+    getValidMoves(piece: Piece, boardState: Piece[]) : Position[]
+    {
+        if (piece.type === PieceType.PAWN) 
+        {
+            return getPossiblePawnMoves(piece, boardState);
+        }
+        else if (piece.type === PieceType.KNIGHT) 
+        {
+            return getPossibleKnightMoves(piece, boardState);
+        }
+        else if (piece.type === PieceType.BISHOP) 
+        {
+            return getPossibleBishopMoves(piece, boardState);
+        }
+        else if (piece.type === PieceType.ROOK) 
+        {
+            return getPossibleRookMoves(piece, boardState);
+        }
+        else if (piece.type === PieceType.QUEEN) 
+        {
+            return getPossibleQueenMoves(piece, boardState);
+        }
+        else if (piece.type === PieceType.KING) 
+        {
+            return getPossibleKingMoves(piece, boardState);
+        }
+        else
+        {
+            return [];
+        }
+
+        return [];
     }
 }

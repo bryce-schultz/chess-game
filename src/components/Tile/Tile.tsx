@@ -4,25 +4,22 @@ interface Props
 {
     image?: string;
     number: number;
+    highlight: boolean;
 }
 
-export default function Tile({number, image}: Props)
+export default function Tile({number, image, highlight}: Props)
 {
-    if (number % 2 === 0)
-    {
-        return (
-            <div className='tile black-tile'>
-                {image && <div className='tile-image' style={{backgroundImage: `url(${image})`}}></div>}
-            </div>
-        );
-    }
-    else
-    {
-        return (
-            <div className='tile white-tile'>
-                {image && <div className='tile-image' style={{backgroundImage: `url(${image})`}}></div>}
-            </div>
-        );
-    }
-    
+    const className: string = 
+    [
+        "tile", 
+        number % 2 === 0 && "black-tile",
+        number % 2 !== 0 && "white-tile",
+        highlight && "tile-highlight"
+    ].filter(Boolean).join(' ');
+
+    return (
+        <div className={className}>
+            {image && <div className='tile-image' style={{backgroundImage: `url(${image})`}}></div>}
+        </div>
+    );   
 }

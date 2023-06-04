@@ -4,6 +4,15 @@ import Referee from '../../referee/Referee';
 
 import { useRef, useState } from 'react';
 
+import white_rook from '../../assets/images/rook_w.png';
+import black_rook from '../../assets/images/rook_b.png';
+import white_knight from '../../assets/images/knight_w.png';
+import black_knight from '../../assets/images/knight_b.png';
+import white_bishop from '../../assets/images/bishop_w.png';
+import black_bishop from '../../assets/images/bishop_b.png';
+import white_queen from '../../assets/images/queen_w.png';
+import black_queen from '../../assets/images/queen_b.png';
+
 import {
     VERTICAL_AXIS, HORIZONTAL_AXIS, GRID_SIZE, Piece, TeamType, PieceType, initialBoardState,
     Position, samePosition,
@@ -21,8 +30,21 @@ export default function Chessboard()
     const modalRef = useRef<HTMLDivElement>(null);
     let board = [];
 
+    function updateValidMoves()
+    {
+        setPieces((currentPieces) =>
+        {
+            return currentPieces.map(piece =>
+            {
+                piece.possibleMoves = referee.getValidMoves(piece, currentPieces);
+                return piece;
+            });
+        });
+    }
+
     function grabPiece(event: React.MouseEvent)
     {
+        updateValidMoves();
         const element = event.target as HTMLElement;
         const chessboard = chessboard_ref.current;
         if (element.classList.contains('tile-image') && chessboard)
@@ -40,7 +62,7 @@ export default function Chessboard()
             element.style.top = `${y}px`;
 
             setActivePiece(element);
-        }   
+        }
     }
 
     function movePiece(event: React.MouseEvent)
@@ -162,27 +184,55 @@ export default function Chessboard()
         const updatedPieces = pieces.reduce((results, piece) => {
             if (samePosition(piece.position, promotionPawn.position)) {
                 piece.type = pieceType;
-                const teamType = (piece.team === TeamType.OUR) ? "w" : "b";
+                const ourTeam = piece.team === TeamType.OUR;
                 let image = "";
                 switch (pieceType) {
                     case PieceType.ROOK: {
-                        image = "rook";
+                        if (ourTeam)
+                        {
+                            image = white_rook;
+                        }
+                        else
+                        {
+                            image = black_rook;
+                        }
                         break;
                     }
                     case PieceType.BISHOP: {
-                        image = "bishop";
+                        if (ourTeam)
+                        {
+                            image = white_bishop;
+                        }
+                        else
+                        {
+                            image = black_bishop;
+                        }
                         break;
                     }
                     case PieceType.KNIGHT: {
-                        image = "knight";
+                        if (ourTeam)
+                        {
+                            image = white_knight;
+                        }
+                        else
+                        {
+                            image = black_knight;
+                        }
                         break;
                     }
                     case PieceType.QUEEN: {
-                        image = "queen";
+                        if (ourTeam)
+                        {
+                            image = white_queen;
+                        }
+                        else
+                        {
+                            image = black_queen;
+                        }
                         break;
                     }
                 }
-                piece.image = `assets/images/${image}_${teamType}.png`;
+                piece.image = image;
             }
             results.push(piece);
             return results;
@@ -194,7 +244,7 @@ export default function Chessboard()
     }
 
     function promotionTeamType() {
-        return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
+        return (promotionPawn?.team === TeamType.OUR);
     }
 
     for (let i = VERTICAL_AXIS.length - 1; i >= 0; i--)
@@ -205,7 +255,15 @@ export default function Chessboard()
             const piece = pieces.find(p => p.position.x === j && p.position.y === i);
             let image = piece ? piece.image : undefined;
 
-            board.push(<Tile key={`${i},${j}`} number={tile_id} image={image}/>);
+            let currentPiece = activePiece !== null ? 
+                pieces.find(piece => samePosition(piece.position, grabPosition)) : 
+                undefined;
+
+            let highlight = currentPiece?.possibleMoves ? 
+                currentPiece.possibleMoves.some(pos => samePosition(pos, {x: j, y: i})) : 
+                false;
+
+            board.push(<Tile key={`${i},${j}`} number={tile_id} image={image} highlight={highlight}/>);
         }
     }
 
@@ -213,10 +271,26 @@ export default function Chessboard()
         <>
             <div id="pawn-promotion-modal" className="hidden" ref={modalRef}>
                 <div className="modal-body">
-                    <img onClick={() => promotePawn(PieceType.ROOK)} src={`../../assets/images/rook_${promotionTeamType()}.png`}/>
-                    <img onClick={() => promotePawn(PieceType.BISHOP)} src={`../../assets/images/bishop_${promotionTeamType()}.png`}/>
-                    <img onClick={() => promotePawn(PieceType.KNIGHT)} src={`../../assets/images/knight_${promotionTeamType()}.png`}/>
-                    <img onClick={() => promotePawn(PieceType.QUEEN)} src={`../../assets/images/queen_${promotionTeamType()}.png`}/>
+                    {
+                        promotionTeamType() ? 
+                        <img alt='white rook' onClick={() => promotePawn(PieceType.ROOK)} src={white_rook}/> : 
+                        <img alt='black rook' onClick={() => promotePawn(PieceType.ROOK)} src={black_rook}/>
+                    }
+                    {
+                        promotionTeamType() ? 
+                        <img alt='white bishop' onClick={() => promotePawn(PieceType.BISHOP)} src={white_bishop}/> : 
+                        <img alt='black bishop' onClick={() => promotePawn(PieceType.BISHOP)} src={black_bishop}/>
+                    }
+                    {
+                        promotionTeamType() ? 
+                        <img alt='white knight' onClick={() => promotePawn(PieceType.KNIGHT)} src={white_knight}/> : 
+                        <img alt='black knight' onClick={() => promotePawn(PieceType.KNIGHT)} src={black_knight}/>
+                    }
+                    {
+                        promotionTeamType() ? 
+                        <img alt='white queen' onClick={() => promotePawn(PieceType.QUEEN)} src={white_queen}/> : 
+                        <img alt='black queen' onClick={() => promotePawn(PieceType.QUEEN)} src={black_queen}/>
+                    }
                 </div>
             </div>
             <div 
