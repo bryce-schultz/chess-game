@@ -1,43 +1,22 @@
-import { PieceType, TeamType, Piece } from "../components/chessboard/Chessboard";
+import { PieceType, TeamType, Piece, Position } from "../Constants";
+import { pawnRule, knightRule, bishopRule, rookRule, kingRule } from "./rules";
 
 export default class Referee 
 {
-    tileIsOccupied(x: number, y: number, boardState: Piece[]): boolean
-    {
-        const piece = boardState.find(p => p.x === x && p.y === y);
-        if (piece)
-            return true;
-        return false;
-    }
-
-    tileIsOccupiedByOpponent(x: number, y: number, boardState: Piece[], team: TeamType): boolean
-    {
-        const piece = boardState.find(p => p.x === x && p.y === y && p.team !== team);
-
-        if (piece)
-            return true;
-        return false;
-    }
-
-    isEnPassantMove(
-        px: number, 
-        py: number, 
-        x: number, 
-        y: number, 
-        type: PieceType, 
-        team: TeamType, 
+    isEnPassantMove (
+        initialPosition: Position,
+        desiredPosition: Position,
+        type: PieceType,
+        team: TeamType,
         boardState: Piece[]): boolean
     {
         const pawnDirection = (team === TeamType.OUR) ? 1 : -1;
 
-        if (type === PieceType.PAWN)
-        {
-            if ((x - px === -1 || x - px === 1) && y - py === pawnDirection)
-            {
-                const piece = boardState.find(p => p.x === x && p.y === y - pawnDirection && p.enPassant);
+        if (type === PieceType.PAWN) {
+            if ((desiredPosition.x - initialPosition.x === -1 || desiredPosition.x - initialPosition.x === 1) && desiredPosition.y - initialPosition.y === pawnDirection) {
+                const piece = boardState.find(p => p.position.x === desiredPosition.x && p.position.y === desiredPosition.y - pawnDirection && p.enPassant);
 
-                if (piece)
-                {
+                if (piece) {
                     return true;
                 }
             }
@@ -45,61 +24,38 @@ export default class Referee
 
         return false;
     }
-
     isValidMove(
-        px: number, 
-        py: number, 
-        x: number, 
-        y: number, 
+        initialPosition: Position,
+        desiredPosition: Position,
         type: PieceType, 
         team: TeamType, 
         boardState: Piece[])
     {
         console.log('referee is checking move.');
 
-        if (type === PieceType.PAWN)
-        {
-            return this.pawnRule(px, py, x, y, team, boardState);
+        if (type === PieceType.PAWN) {
+            return pawnRule(initialPosition, desiredPosition, team, boardState);
         }
-
-        return false;
-    }
-
-    pawnRule(px: number, py: number, x: number, y: number, team: TeamType, boardState: Piece[])
-    {
-        const specialRow = (team === TeamType.OUR) ? 1 : 6;
-        const pawnDirection = (team === TeamType.OUR) ? 1 : -1;
-
-        // movement logic.
-        if (px === x && py === specialRow && y - py === 2*pawnDirection)
-        {
-            if (!this.tileIsOccupied(x, y, boardState) &&
-                !this.tileIsOccupied(x, y - pawnDirection, boardState))
-            {
-                return true;
-            }
-        } 
-        else if (px === x && y - py === pawnDirection)
-        {
-            if (!this.tileIsOccupied(x, y, boardState))
-            {
-                return true;
-            }
+        else if (type === PieceType.KNIGHT) {
+            return knightRule(initialPosition, desiredPosition, team, boardState);
         }
-        // attack logic.
-        else if (x - px === -1 && y - py === pawnDirection)
-        {
-            if (this.tileIsOccupiedByOpponent(x, y, boardState, team))
-            {
-                return true;
-            }
+        else if (type === PieceType.BISHOP) {
+            return bishopRule(initialPosition, desiredPosition, team, boardState);
         }
-        else if (x - px === 1 && y - py === pawnDirection)
-        {   
-            if (this.tileIsOccupiedByOpponent(x, y, boardState, team))
-            {
-                return true;
-            }
+        else if (type === PieceType.ROOK) {
+            return rookRule(initialPosition, desiredPosition, team, boardState);
+        }
+        else if (type === PieceType.QUEEN) {
+            var retVal = false;
+            if (rookRule(initialPosition, desiredPosition, team, boardState))
+                retVal = true;
+            else if (bishopRule(initialPosition, desiredPosition, team, boardState))
+                retVal = true;
+
+            return retVal;
+        }
+        else if (type === PieceType.KING) {
+            return kingRule(initialPosition, desiredPosition, team, boardState);
         }
 
         return false;
