@@ -118,6 +118,8 @@ export default function Chessboard()
             }
             incrementTurn();
 
+            const takeKing = referee.isTakeKing(grabPosition, { x, y }, currentPiece.type, currentPiece.team, pieces);
+
             const validMove = referee.isValidMove(grabPosition, { x, y }, currentPiece.type, currentPiece.team, pieces);
 
             const isEnPassantMove = referee.isEnPassantMove(grabPosition, { x, y }, currentPiece.type, currentPiece.team, pieces);
@@ -148,6 +150,8 @@ export default function Chessboard()
                 }, [] as Piece[]);
 
                 setPieces(updatedPieces);
+                if (takeKing)
+                    alert((currentPiece.team ? "White" : "Black") + " Team Wins");
             }
             else if (validMove)
             {
@@ -181,6 +185,8 @@ export default function Chessboard()
                 }, [] as Piece[]);
 
                 setPieces(updatedPieces);
+                if (takeKing)
+                    alert((currentPiece.team ? "White" : "Black") + " Team Wins");
             }
             else
             {

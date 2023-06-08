@@ -1,4 +1,4 @@
-import { PieceType, TeamType, Piece, Position } from "../Constants";
+import { PieceType, TeamType, Piece, Position, samePosition } from "../Constants";
 import { pawnRule, knightRule, bishopRule, rookRule, kingRule, queenRule, getPossiblePawnMoves, getPossibleKnightMoves, getPossibleBishopMoves, getPossibleRookMoves, getPossibleKingMoves, getPossibleQueenMoves } from "./rules";
 
 export default class Referee 
@@ -23,6 +23,19 @@ export default class Referee
             }
         }
 
+        return false;
+    }
+
+    isTakeKing(
+        initialPosition: Position,
+        desiredPosition: Position,
+        type: PieceType,
+        team: TeamType,
+        boardState: Piece[])
+    {
+        const piece = boardState.find(p => samePosition(p.position, desiredPosition));
+        if (piece && piece.type == PieceType.KING && piece.team != team)
+            return true;
         return false;
     }
 
