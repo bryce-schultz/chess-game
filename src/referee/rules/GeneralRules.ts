@@ -1,4 +1,4 @@
-import { TeamType, Piece, Position, samePosition } from "../../Constants";
+import { PieceType, TeamType, Piece, Position, samePosition } from "../../Constants";
 
 export const tileIsOccupied = (position: Position, boardState: Piece[]): boolean =>
 {

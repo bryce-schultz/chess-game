@@ -3,6 +3,7 @@ import { pawnRule, knightRule, bishopRule, rookRule, kingRule, queenRule, getPos
 
 export default class Referee 
 {
+
     isEnPassantMove (
         initialPosition: Position,
         desiredPosition: Position,
@@ -24,6 +25,7 @@ export default class Referee
 
         return false;
     }
+
     isValidMove(
         initialPosition: Position,
         desiredPosition: Position,

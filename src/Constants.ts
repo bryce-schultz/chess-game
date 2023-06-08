@@ -16,6 +16,12 @@ export const HORIZONTAL_AXIS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
 export const GRID_SIZE = 100;
 
+export var TURN_NUM = 1;
+
+export function incrementTurn() {
+    TURN_NUM++;
+}
+
 export function samePosition(p1: Position, p2: Position) {
     return p1.x === p2.x && p1.y === p2.y;
 }

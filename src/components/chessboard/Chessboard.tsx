@@ -15,7 +15,7 @@ import black_queen from '../../assets/images/queen_b.png';
 
 import {
     VERTICAL_AXIS, HORIZONTAL_AXIS, GRID_SIZE, Piece, TeamType, PieceType, initialBoardState,
-    Position, samePosition,
+    Position, samePosition, TURN_NUM, incrementTurn,
 } from "../../Constants";
 
 export default function Chessboard()
@@ -44,6 +44,7 @@ export default function Chessboard()
 
     function grabPiece(event: React.MouseEvent)
     {
+
         updateValidMoves();
         const element = event.target as HTMLElement;
         const chessboard = chessboard_ref.current;
@@ -101,6 +102,22 @@ export default function Chessboard()
 
         if (currentPiece)
         {
+            // Prevent the inactive team from playing
+            let valid = true;
+            if (currentPiece.team === TeamType.OUR
+                && TURN_NUM % 2 !== 1) valid = false;
+            if (currentPiece.team === TeamType.OPPONENT
+                && TURN_NUM % 2 !== 0) valid = false;
+            if (valid == false) {
+                console.log(TURN_NUM);
+                activePiece.style.position = "relative";
+                activePiece.style.removeProperty("top");
+                activePiece.style.removeProperty("left");
+                setActivePiece(null);
+                return;
+            }
+            incrementTurn();
+
             const validMove = referee.isValidMove(grabPosition, { x, y }, currentPiece.type, currentPiece.team, pieces);
 
             const isEnPassantMove = referee.isEnPassantMove(grabPosition, { x, y }, currentPiece.type, currentPiece.team, pieces);
